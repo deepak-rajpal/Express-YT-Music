@@ -48,9 +48,29 @@ private func drawClef(size: CGFloat) {
     ctx.restoreGState()
 }
 
-private func drawIcon(size: CGFloat) -> NSImage {
-    let image = NSImage(size: NSSize(width: size, height: size))
-    image.lockFocus()
+/// Renders at exactly `pixels` square.
+///
+/// NSImage.lockFocus() would instead render at the main display's backing scale
+/// factor, so on a Retina Mac every icon came out 2x the requested size - four
+/// times the pixel count, and an .icns four times larger than it needed to be.
+/// Drawing into an explicit NSBitmapImageRep with size == pixel count keeps one
+/// point equal to one pixel.
+private func renderIcon(pixels: Int) -> NSBitmapImageRep? {
+    guard let rep = NSBitmapImageRep(
+        bitmapDataPlanes: nil, pixelsWide: pixels, pixelsHigh: pixels,
+        bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+        colorSpaceName: .calibratedRGB, bytesPerRow: 0, bitsPerPixel: 0
+    ) else { return nil }
+    rep.size = NSSize(width: pixels, height: pixels)
+
+    NSGraphicsContext.saveGraphicsState()
+    NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+    drawIcon(size: CGFloat(pixels))
+    NSGraphicsContext.restoreGraphicsState()
+    return rep
+}
+
+private func drawIcon(size: CGFloat) {
 
     let inset = size * 0.06
     let rect = NSRect(x: inset, y: inset, width: size - inset * 2, height: size - inset * 2)
@@ -70,15 +90,10 @@ private func drawIcon(size: CGFloat) -> NSImage {
     border.stroke()
 
     drawClef(size: size)
-
-    image.unlockFocus()
-    return image
 }
 
-private func write(_ image: NSImage, to file: String) {
-    guard let tiff = image.tiffRepresentation,
-          let rep = NSBitmapImageRep(data: tiff),
-          let png = rep.representation(using: .png, properties: [:]) else { return }
+private func write(_ rep: NSBitmapImageRep, to file: String) {
+    guard let png = rep.representation(using: .png, properties: [:]) else { return }
     try? png.write(to: URL(fileURLWithPath: file))
 }
 
@@ -92,11 +107,8 @@ let variants: [(Int, Int, String)] = [
 ]
 
 for (base, scale, name) in variants {
-    let pixels = CGFloat(base * scale)
-    let image = drawIcon(size: pixels)
-    // Report the pixel dimensions so the PNG has the resolution iconutil wants.
-    image.size = NSSize(width: pixels, height: pixels)
-    write(image, to: "\(outDir)/\(name)")
+    guard let rep = renderIcon(pixels: base * scale) else { continue }
+    write(rep, to: "\(outDir)/\(name)")
 }
 
 print("wrote iconset to \(outDir)")

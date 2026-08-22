@@ -35,11 +35,14 @@ Here is the entire shipped app:
 
 | File | Size | What it is |
 | --- | --- | --- |
-| `Contents/MacOS/ExpressYTMusic` | 328 KB | All the Swift, compiled |
-| `Contents/Resources/AppIcon.icns` | 275 KB | The icon — bigger than the code |
+| `Contents/MacOS/ExpressYTMusic` | 677 KB | All the Swift, compiled — both architectures |
+| `Contents/Resources/AppIcon.icns` | 325 KB | The icon, at ten sizes |
 | `Contents/Resources/inject.js` | 6 KB | The page bridge, shipped as plain text |
 | `Contents/Info.plist` + `PkgInfo` + signature | ~4 KB | |
-| **Total** | **~630 KB** | arm64 only; universal is ~870 KB |
+| **Total** | **~1012 KB** | universal; an arm64-only build is ~690 KB |
+
+The `.dmg` compresses that to about 745 KB. Note the universal bundle sits just under the 1 MB
+line, so the README says "under 1 MB" rather than a figure that would rot on the next change.
 
 One decision does most of the work: **we ship zero libraries and link 31 from macOS.**
 
@@ -280,6 +283,12 @@ furthest left. Set `autosaveName` so a user's ⌘-drag rearrangement persists.
 
 **`tertiaryLabelColor` vanishes inside an `NSVisualEffectView`.** Vibrancy makes it nearly
 transparent. Use `secondaryLabelColor` for anything that must stay visible on a blurred backdrop.
+
+**`NSImage.lockFocus()` renders at the main display's backing scale, not at the image's size.**
+On a Retina Mac an `NSImage(size: 1024)` therefore produces a 2048×2048 bitmap — four times the
+pixels, and an `.icns` a third larger than it needs to be. If you need exact pixel dimensions,
+draw into an `NSBitmapImageRep` whose `size` equals its pixel count, as
+[`Tools/makeicon.swift`](Tools/makeicon.swift) does.
 
 **Multi-file `swiftc` builds forbid top-level code.** Only `main.swift` may have statements at file
 scope, which is why some tools in `Tools/` use `@main` and others don't — the single-file ones are

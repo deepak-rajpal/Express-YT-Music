@@ -22,8 +22,8 @@ that stays on top while you work.
 
 ## Download
 
-**[⬇ Download Express YT Music 1.5.0](../../raw/master/download/Express-YT-Music-1.5.0.dmg)** — 715 KB,
-works on Apple Silicon and Intel Macs, macOS 13 (Ventura) or later.
+**[⬇ Download Express YT Music 1.5.0](../../raw/master/download/Express-YT-Music-1.5.0.dmg)** — under
+1 MB, works on Apple Silicon and Intel Macs, macOS 13 (Ventura) or later.
 
 Then:
 
@@ -68,7 +68,8 @@ about ten seconds.
   switch apps to check or skip.
 - **You want your media keys to work.** Browser tabs are unreliable about this; a real app isn't.
 - **You don't want a heavy app.** Many similar apps bundle an entire copy of Chrome and weigh
-  200–500 MB. This one is 715 KB because it uses the browser engine already built into your Mac.
+  200–500 MB. This one stays under 1 MB because it uses the browser engine already built into
+  your Mac.
 - **You care what software does behind your back.** This app makes no network connections of its
   own — the only thing it ever talks to is YouTube itself. There is no analytics, no telemetry,
   no auto-updater, and it never touches Safari's or Chrome's saved logins. Every line is here to
