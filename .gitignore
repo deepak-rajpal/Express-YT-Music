@@ -1,0 +1,8 @@
+build/
+dist/
+*.dmg
+!download/*.dmg
+.DS_Store
+
+# Third-party .app bundles kept locally for reference are never published.
+*.app/

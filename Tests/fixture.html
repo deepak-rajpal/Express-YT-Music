@@ -1,0 +1,62 @@
+<!doctype html>
+<!-- Stand-in for music.youtube.com: a <video> plus mediaSession metadata and the
+     player-bar DOM, so inject.js can be exercised without hitting Google. -->
+<html><head><meta charset="utf-8"><title>fixture</title></head>
+<body>
+<video id="v" src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDE="></video>
+
+<ytmusic-player-bar>
+  <span class="title ytmusic-player-bar">DOM Fallback Title</span>
+  <span class="subtitle ytmusic-player-bar">DOM Artist • DOM Album • 2024</span>
+</ytmusic-player-bar>
+
+<button id="play-pause-button"></button>
+<button class="next-button"></button>
+<button class="previous-button"></button>
+<button id="expand-shuffle"></button>
+<button id="expand-repeat"></button>
+
+<script>
+  window.__clicks = [];
+  ["play-pause-button", "expand-shuffle", "expand-repeat"].forEach(function (id) {
+    document.getElementById(id).addEventListener("click", function () { window.__clicks.push(id); });
+  });
+  document.querySelector(".next-button").addEventListener("click", function () { window.__clicks.push("next"); });
+  document.querySelector(".previous-button").addEventListener("click", function () { window.__clicks.push("prev"); });
+
+  // A fake #movie_player so the injected next()/previous() take the API path,
+  // exactly as they do on the real site.
+  var mp = document.createElement("div");
+  mp.id = "movie_player";
+  mp.nextVideo = function () { window.__clicks.push("api:next"); };
+  mp.previousVideo = function () { window.__clicks.push("api:prev"); };
+  document.body.appendChild(mp);
+
+  // What YouTube Music itself publishes for OS integration.
+  if ("mediaSession" in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: "Session Title",
+      artist: "Session Artist",
+      album: "Session Album",
+      artwork: [
+        { src: "https://example.invalid/small.jpg", sizes: "96x96", type: "image/jpeg" },
+        { src: "https://example.invalid/large.jpg", sizes: "544x544", type: "image/jpeg" }
+      ]
+    });
+  }
+
+  // Give the <video> a definite, seekable duration.
+  var v = document.getElementById("v");
+  Object.defineProperty(v, "duration", { get: function () { return 210; } });
+  Object.defineProperty(v, "readyState", { get: function () { return 4; } });
+  var _t = 12;
+  Object.defineProperty(v, "currentTime", {
+    get: function () { return _t; },
+    set: function (n) { _t = n; }
+  });
+  var _paused = true;
+  Object.defineProperty(v, "paused", { get: function () { return _paused; } });
+  v.play = function () { _paused = false; v.dispatchEvent(new Event("play")); };
+  v.pause = function () { _paused = true; v.dispatchEvent(new Event("pause")); };
+</script>
+</body></html>
