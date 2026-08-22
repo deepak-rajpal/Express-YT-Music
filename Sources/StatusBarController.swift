@@ -25,9 +25,7 @@ final class StatusBarController: NSObject, NSMenuDelegate {
         statusItem.autosaveName = "ExpressYTMusicMain"
 
         if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "music.note",
-                                   accessibilityDescription: "Express YT Music")
-            button.image?.isTemplate = true
+            button.image = MenuBarIcon.make()
             button.imagePosition = .imageLeading
             button.target = self
             button.action = #selector(buttonClicked(_:))
